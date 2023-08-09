@@ -1,0 +1,156 @@
+pyinstaller --onefile fedu.py
+pyinstaller --noconsole tu_script.py
+
+# type: ignore
+import win32gui
+import win32con
+import pyperclip
+
+hwnd = win32gui.GetForegroundWindow()
+win32gui.SetWindowPos(
+    hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE
+)
+
+
+def remove_dots(number):
+    number = number.replace(".", "")
+    return number
+
+
+while True:
+    number_input = input('Ingresar numero o "salir": ')
+
+    if number_input.lower() == "salir":
+        break
+
+    if not number_input:
+        continue
+
+    processed_number = remove_dots(number_input)
+    pyperclip.copy(processed_number)
+    print("Numero procesado:", processed_number)
+    print("Copiado en el portapapeles!")
+    print()
+
+
+---------------------------------------------------------
+
+import tkinter as tk
+import pyperclip
+
+
+def remove_dots(number):
+    number = number.replace(".", "")
+    return number
+
+
+def toggle_conversion():
+    global is_conversion_active
+    is_conversion_active = not is_conversion_active
+    if is_conversion_active:
+        btn_toggle.config(text="Apagar")
+        convert_number()
+    else:
+        btn_toggle.config(text="Encender")
+
+
+def convert_number():
+    global last_processed_number
+    if is_conversion_active:
+        number_input = pyperclip.paste()
+        if number_input and number_input != last_processed_number:
+            processed_number = remove_dots(number_input)
+            if processed_number != last_processed_number:
+                last_processed_number = processed_number
+                pyperclip.copy(processed_number)
+                print("Número procesado:", processed_number)
+    root.after(1000, convert_number)
+
+
+is_conversion_active = False
+last_processed_number = ""
+
+root = tk.Tk()
+root.title("Aplicación de conversión de números")
+root.geometry("300x200")
+
+btn_toggle = tk.Button(root, text="Encender", command=toggle_conversion)
+btn_toggle.pack(pady=10)
+
+root.mainloop()
+---------------------------------------------------------
+import tkinter as tk
+from PIL import Image, ImageTk
+import pyautogui
+import pytesseract
+
+
+def read_number_from_region(top_left, bottom_right):
+    # Toma una captura de pantalla de la región especificada
+    screenshot = pyautogui.screenshot()
+    region_image = screenshot.crop(
+        (top_left[0], top_left[1], bottom_right[0], bottom_right[1])
+    )
+
+    # Convierte la imagen en escala de grises
+    gray_image = region_image.convert("L")
+
+    # Utiliza Tesseract OCR para leer el número en la imagen
+    result = pytesseract.image_to_string(gray_image)
+    return result.strip()
+
+
+def remove_dots(number):
+    number = number.replace(".", "")
+    return number
+
+
+def toggle_conversion():
+    global is_conversion_active
+    is_conversion_active = not is_conversion_active
+    if is_conversion_active:
+        btn_toggle.config(text="Apagar")
+        convert_number()
+    else:
+        btn_toggle.config(text="Encender")
+
+
+def convert_number():
+    if is_conversion_active:
+        number = read_number_from_region(top_left, bottom_right)
+        if number:
+            processed_number = remove_dots(number)
+            print("Número procesado:", processed_number)
+    root.after(1000, convert_number)
+
+
+def capture_and_process_number():
+    number = read_number_from_region(top_left, bottom_right)
+    if number:
+        processed_number = remove_dots(number)
+        print("Número capturado y procesado:", processed_number)
+
+
+is_conversion_active = False
+top_left = (100, 100)  # Coordenadas superiores izquierdas de la región
+bottom_right = (300, 200)  # Coordenadas inferiores derechas de la región
+
+root = tk.Tk()
+root.title("Aplicación de captura y conversión de números")
+root.geometry("300x200")
+
+btn_toggle = tk.Button(root, text="Encender", command=toggle_conversion)
+btn_toggle.pack(pady=10)
+
+btn_capture = tk.Button(
+    root, text="Capturar y Procesar", command=capture_and_process_number
+)
+btn_capture.pack(pady=10)
+
+root.mainloop()
+---------------------------------------------------------
+
+1.23.124.13..123.4.121.23.12.1.2331231231233 12331 23412123
+salir
+
+github.com/UB-Mannheim/tesseract/wiki
